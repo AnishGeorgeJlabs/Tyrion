@@ -1,0 +1,60 @@
+{
+  "documentation": {
+    "tags_docs": "These are optional boolean tags that may be associated with a menu item and/or its toppings",
+    "tags": [ "veg", "nveg", "sp", "esp", "rec", "new" ]
+  },
+  "menu": [
+    {
+      "name": "Smoking Hot Pizzas",
+      "items": [
+        {
+          "name": "Mexican Chille",
+          "size": [
+            { "name": "main", "price": 520 }
+          ]
+        },
+        {
+          "name": "Supreme Non-veg",
+          "tags": ["nveg"],
+          "type": "compound",
+          "size": [
+            { "name": "Small", "price": 150 },
+            { "name": "Medium", "price": 200 },
+            { "name": "Large", "price": 250 }
+          ],
+          "custom": [
+            {
+              "name": "Base",
+              "type": "single",
+              "option": [
+                { "name": "Classic Pan", "price": 0 },
+                { "name": "Thin Crust", "price": 50 },
+                { "name": "Deep Crust", "price": 50 }
+              ]
+            },
+            {
+              "name": "Toppings",
+              "type": "multi",
+              "soft_limit": 3,
+              "hard_limit": 5,
+              "option": [
+                { "name": "Ham", "price": 10, "tags": ["nveg"] },
+                { "name": "Chicken", "price": 10, "tags": ["nveg"]},
+                { "name": "Jalepeno", "price": 10, "tags": ["veg", "sp"]},
+                { "name": "Pork", "price": 10, "tags": ["nveg", "new"]}
+              ]
+            },
+            {
+              "name": "Extras",
+              "type": "optional",
+              "option": [
+                { "name": "toppings non-veg", "price": 20, "tags": ["nveg"] },
+                { "name": "cheese", "price": 20}
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
