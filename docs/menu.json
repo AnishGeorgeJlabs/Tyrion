@@ -5,18 +5,18 @@
   },
   "menu": [
     {
-      "name": "Smoking Hot Pizzas",
+      "category": "Smoking Hot Pizzas",
       "items": [
         {
           "name": "Mexican Chille",
-          "size": [
-            { "name": "main", "price": 520 }
-          ]
+          "tags": ["sp"],
+          "simple": true,
+          "price": 520
         },
         {
           "name": "Supreme Non-veg",
           "tags": ["nveg"],
-          "type": "compound",
+          "simple": false,
           "size": [
             { "name": "Small", "price": 150 },
             { "name": "Medium", "price": 200 },

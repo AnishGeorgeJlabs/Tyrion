@@ -1,0 +1,47 @@
+{
+  "Menu Collection": [
+    {
+      "vendor_id": 10,
+      "menu": [
+        {
+          "category": "Supreme Pizzas",
+          "items": [
+            {
+              "name": "Some item name",
+              "tags": [],
+              "simple": true,
+              "price": 100,
+              "custom": "template_id"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "Customization Collection": [
+    {
+      "name": "Pizza Toppings",
+      "vendor_id": 10,
+      "custom_id": 320,
+      "type": "multi",
+      "option": [
+        { "name": "Ham", "price": 10, "tags": ["nveg"] },
+        { "name": "Chicken", "price": 10, "tags": ["nveg"]},
+        { "name": "Jalepeno", "price": 10, "tags": ["veg", "sp"]},
+        { "name": "Pork", "price": 10, "tags": ["nveg", "new"]}
+      ]
+    }
+  ],
+  "Template Collection": [
+    {
+      "name": "Simple Veg pizzas",
+      "template_id": 301,
+      "custom": [{
+        "name": "Toppings",
+        "options": "custom_id",
+        "soft_limit": 5,
+        "hard_limit": 10
+      }]
+    }
+  ]
+}
