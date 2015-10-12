@@ -52,6 +52,12 @@ def get_menu(vendor_id):
             tc_fk = item.pop('template_customize_fk')
             if ts_fk:
                 item['size'] = get_template_size(ts_fk, vendor_id)
+                item['simple'] = False
+            else:
+                if 'price' not in item:
+                    item['price'] = 0
+                    item['error'] = "Price not found"
+                item['simple'] = True
             if tc_fk:
                 item['custom'] = get_template_customize(tc_fk, vendor_id)
 
