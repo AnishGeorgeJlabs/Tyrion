@@ -48,8 +48,8 @@ def get_menu(vendor_id):
 
     for category in vendor['menu']:
         for item in category['items']:
-            ts_fk = item.pop('template_size_fk')
-            tc_fk = item.pop('template_customize_fk')
+            ts_fk = item.pop('template_size_fk', None)
+            tc_fk = item.pop('template_customize_fk', None)
             if ts_fk:
                 item['size'] = get_template_size(ts_fk, vendor_id)
                 item['simple'] = False
