@@ -5,12 +5,13 @@ from . import db
 
 
 def process_customization(cust_obj, vendor_id):
-    customize_fk = cust_obj.pop('customize_fk')
-    customization = db.customize.find_one(
-        {"customize_id": customize_fk, "vendor_id": vendor_id},
-        {"_id": False, "vendor_id": False, "customize_id": False}
-    )
-    cust_obj.update(customization)
+    customize_fk = cust_obj.pop('customize_fk', None)
+    if customize_fk:
+        customization = db.customize.find_one(
+            {"customize_id": customize_fk, "vendor_id": vendor_id},
+            {"_id": False, "vendor_id": False, "customize_id": False}
+        )
+        cust_obj.update(customization)
     return cust_obj
 
 
