@@ -10,8 +10,11 @@ class Cache(object):
             _MASTER_CACHE[namespace] = {}
         self.cache = _MASTER_CACHE[namespace]
         self.namespace = namespace
+        self.enabled = True
 
     def retrieve(self, key):
+        if not self.enabled:
+            return None
         res = self.cache.get(key)
         if res is not None:
             return res.copy()
