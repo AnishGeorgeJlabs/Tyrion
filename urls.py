@@ -1,7 +1,9 @@
-from django.conf.urls import include, url
+from django.conf.urls import url
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
+
 from . import api
+
 
 @csrf_exempt
 def test(request):
@@ -23,7 +25,8 @@ def test(request):
 
 urlpatterns = [
     url(r'^$', test),
-    url(r'^menu', api.get_menu)
+    url(r'^menu$', api.get_menu),
+    url(r'^menu/check_version$', api.check_menu_version)
 ]
 
 
