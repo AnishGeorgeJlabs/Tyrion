@@ -5,30 +5,33 @@ import pymongo
 from django.http import HttpResponse
 from bson.json_util import dumps
 
+# ------- Database Authentication and access ---------------- #
 dbclient = pymongo.MongoClient("45.55.232.5:27017")
 dbclient.tyrion.authenticate("tyrionApi", "halfman", mechanism='MONGODB-CR')
 
 db = dbclient.tyrion
 
+# ------- Json response format ------------------------------ #
 def jsonResponse(d):
     return HttpResponse(dumps(d), content_type='application/json')
 
 def basic_failure(reason=None):
-    res = {"success": False}
-    if reason:
-        res['reason'] = reason
-
-    return jsonResponse(res)
+    return base_response(success=False, ekey="reason", reason=reason)
 
 def basic_error(reason=None):
-    res = {"success": False}
-    if reason:
-        res['error'] = reason
-
-    return jsonResponse(res)
+    return base_response(success=False, ekey="error", reason=reason)
 
 def basic_success(data=None):
-    res = {"success": True}
-    if data:
+    return base_response(success=True, data=data)
+
+def base_response(success=False, data=None, ekey="reason", reason=None):
+    res = {"success": success}
+
+    if data is not None:
         res['data'] = data
+
+    if reason is not None:
+        res[ekey] = reason
     return jsonResponse(res)
+
+# -------------------------------------------------------------- #
