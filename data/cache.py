@@ -12,7 +12,11 @@ class Cache(object):
         self.namespace = namespace
 
     def retrieve(self, key):
-        return self.cache.get(key).copy()
+        res = self.cache.get(key)
+        if res is not None:
+            return res.copy()
+        else:
+            return res
 
     def store(self, key, value):
         self.cache[key] = value.copy()
