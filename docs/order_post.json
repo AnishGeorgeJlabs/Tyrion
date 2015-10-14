@@ -6,6 +6,7 @@
     {
       "category": "index",
       "item": "index",
+      "qty": "Quantity, defaults to 1",
       "size": "index, optional",
       "custom": [
         ["array of indices"], ["indices of the next category"]
