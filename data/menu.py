@@ -94,7 +94,8 @@ def process_customization(cust_obj, vendor_id):
         if 'price' in customization:
             p = customization.pop('price')
             for option in customization['options']:
-                option['price'] = p
+                if 'price' not in option:
+                    option['price'] = p
 
         # Set up limits
         for key in ['min', 'max', 'soft']:
