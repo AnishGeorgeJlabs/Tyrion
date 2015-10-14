@@ -2,6 +2,7 @@
   "vendor_id": 1,
   "email": "email address",
   "phone": "phone, number",
+  "name": "Anish George",
   "order": [
     {
       "category": "index",
