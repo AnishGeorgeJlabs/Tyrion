@@ -90,10 +90,17 @@ def process_customization(cust_obj, vendor_id):
         # Now for some magic
         customization.update(cust_obj)
 
+        # setup price
         if 'price' in customization:
             p = customization.pop('price')
             for option in customization['options']:
                 option['price'] = p
+
+        # Set up limits
+        for key in ['min', 'max', 'soft']:
+            if key not in customization:
+                customization[key] = 0
+
         return customization
     else:
         return None

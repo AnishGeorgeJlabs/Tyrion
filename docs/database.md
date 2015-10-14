@@ -52,7 +52,10 @@ The size component being ```{ "name": "size name", "price": <integer> }```
   "name": "Name of the customization, like Crust selection",
   "type": "One of the many specific types that our apps recognise, 
           currently, one of multi, single, optional",
-  "options": [ <a list of customization options> ]
+  "options": [ <a list of customization options> ],
+  "min": <int, minimum valid selection count>,
+  "max": <int, maximum valid selection count>,
+  "soft": <int, soft limit on selection, after this limit, price is charged, default 0>
 }
 ```
 The customization option being ```{"name": "option name", "price": <integer, additional charge over base price>, "tags": <a list of tags>}```
@@ -146,8 +149,11 @@ to a category using the `customize_fk` key which will point to a customization c
 }
 ```
 
-Usually, we have support for `hard_limit` or `soft_limit` (check the miscellaneous section) as additional keys which cannot be embedded in the customization
-collection as these may need to be changed per item or category of the menu.
+Additional key value pairs added here will be available in the final customization category.
+**NOTE**: Any additional key value pairs will override similar keys in the customization category stored in the `customize` collection
+when building the menu. Thus, you can provide default values in the `customize` collection instances and can add template
+specific overrides here. Check the miscellaneous section on customization modifiers for more detail.
+
 
 ### The `customize` collection
 This collection stores customization categories. For example, a category for pizza crusts, another for veg toppings etc.
@@ -166,7 +172,10 @@ The base base format is
     "name": "Option name",
     "price": <int, the additional price over the base price of the item>,
     "tags": [<a list of tags>]
-  }]
+  }],
+  "min": <optional, minimum selection, Int, defaults to 0>,
+  "max": <optional, maximum selection, Int, 0 for no limit>,
+  "soft": <optional, soft limit, after which we charge, default to 0 for no soft limit>,
 }
 ```
 
@@ -187,25 +196,15 @@ The currently supported tags and their means are:
 | spc | Spicy |
 | espc | Extra spicy |
 
+#### Customization Modifiers
+The type of customization available is dependent on 3 variables:
 
-#### Customization types and modifiers
-These types are part of the customization categories (in the `customize` collection). 
-Currently the system supports the following types
+| key | Value | Behaviour |
+| --- | ----- | --------- |
+| 1. min | 0 (default) |  No minimum limit of selection, completely optional section |
+| | x > 0 | Minimum limit on selection to be valid |
+| 2. max | 0 (default) | No maximum limit of selection, user can select all options if he/she desires |
+| | x > 0 | Maximum limit imposed, no more selection possible after this limit |
+| 3. soft | 0 (default) | No soft limit, default behaviour |
+| | x > 0 | Soft limit is imposed, The number of selection up to the soft limit will incur **no additional charges** on the base price, but further selection will add their respective charge  |
 
-| type | Behaviour |
-| ---- | ------- |
-| single | One and only one option may be selected from the given options |
-| multi | Multiple options may be selected, but there should be atleast one selection |
-| optional | Multiple options may be selected, nothing may be selected as well. For extras |
-
-Several modifiers to these behaviour may be added (as key value pairs) either in the customization category themselves
-(making it restrictive to that category throughout) or to the customization objects inside the templates (which hold
-references to the customization categories). In either case, the end result data will contain these modifiers inside the
-customization categories like so `{ "soft_limit": 2, "name": "toppings", "options": [...] }`
-
-The various modifiers are given below
-
-| Modifier | Acceptable values | Behaviour 
-| -------- | ----------------- | --------- 
-| hard_limit | integer x > 0 and > soft_limit (if present) | Maximum number of selections for the category |
-| soft_limit | integer x > 0 | The number of selection up to the soft_limit will incur **no additional charges** on the base price, but further selection will add their respective charges |
