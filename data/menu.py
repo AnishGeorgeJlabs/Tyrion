@@ -76,8 +76,11 @@ def process_customization(cust_obj, vendor_id):
                 {"_id": False, "vendor_id": False, "customize_id": False}
             )
             _cache.store(key, customization)
-        cust_obj.update(customization)
-    return cust_obj
+        # cust_obj.update(customization)
+        customization.update(cust_obj)
+        return customization
+    else:
+        return None
 
 
 def get_template_customize(template_fk, vendor_id):
@@ -97,9 +100,12 @@ def get_template_customize(template_fk, vendor_id):
         print("Empty template!!")
         return None
     else:
+        '''
         custom = template['custom']
         for section in custom:
             process_customization(section, vendor_id)
+        '''
+        custom = [process_customization(section, vendor_id) for section in template['custom']]
         return custom
 
 
