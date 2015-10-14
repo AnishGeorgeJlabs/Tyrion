@@ -1,0 +1,15 @@
+{
+  "vendor_id": 1,
+  "email": "email address",
+  "phone": "phone, number",
+  "order": [
+    {
+      "category": "index",
+      "item": "index",
+      "size": "index, optional",
+      "custom": [
+        ["array of indices"], ["indices of the next category"]
+      ]
+    }
+  ]
+}

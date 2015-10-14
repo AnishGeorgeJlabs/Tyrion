@@ -170,9 +170,10 @@ The base base format is
             check miscellaneous section for details",
   "options": [{
     "name": "Option name",
-    "price": <int, the additional price over the base price of the item>,
+    "price": <int, Optional, the additional price over the base price of the item>,
     "tags": [<a list of tags>]
   }],
+  "price": <Optional, Int, default additional price for the options>,
   "min": <optional, minimum selection, Int, defaults to 0>,
   "max": <optional, maximum selection, Int, 0 for no limit>,
   "soft": <optional, soft limit, after which we charge, default to 0 for no soft limit>,
