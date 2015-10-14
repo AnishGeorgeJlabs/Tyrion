@@ -76,8 +76,13 @@ def process_customization(cust_obj, vendor_id):
                 {"_id": False, "vendor_id": False, "customize_id": False}
             )
             _cache.store(key, customization)
-        # cust_obj.update(customization)
+        # Now for some magic
         customization.update(cust_obj)
+
+        if 'price' in customization:
+            p = customization.pop('price')
+            for option in customization['options']:
+                option['price'] = p
         return customization
     else:
         return None
