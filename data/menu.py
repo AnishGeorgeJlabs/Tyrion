@@ -16,7 +16,7 @@ def get_version(vendor_id):
         return vendor.get("version")
 
 
-def get_menu(vendor_id):
+def get_full_menu(vendor_id):
     """ Main menu retrieval function
     We build the menu from a size template and a customization template
     1. Either the price or a size object will be present. in case of size object, it can be an embedded object
@@ -30,33 +30,42 @@ def get_menu(vendor_id):
 
     for category in vendor['menu']:
         for item in category['items']:
-            ts_fk = item.pop('template_size_fk', None)
-            tc_fk = item.pop('template_customize_fk', None)
-            if ts_fk:
-                key = 'template_size:' + str(ts_fk)
-                cached = _cache.retrieve(key)
-                if cached:
-                    item['size'] = cached
-                else:
-                    item['size'] = get_template_size(ts_fk, vendor_id)
-                    _cache.store('template_size:' + str(ts_fk), item['size'])
-
-                item['simple'] = False
-            else:
-                if 'price' not in item:
-                    item['price'] = 0
-                    item['error'] = "Price not found"
-                item['simple'] = True
-            if tc_fk:
-                key = 'template_customize:' + str(tc_fk)
-                cached = _cache.retrieve(key)
-                if cached:
-                    item['custom'] = cached
-                else:
-                    item['custom'] = get_template_customize(tc_fk, vendor_id)
-                    _cache.store(key, item['custom'])
+            process_item(item, vendor_id)
 
     return vendor
+
+
+def process_item(item, vendor_id):
+    """ Process individual item, works on side effects
+    :param item:
+    :param vendor_id:
+    :return:
+    """
+    ts_fk = item.pop('template_size_fk', None)
+    tc_fk = item.pop('template_customize_fk', None)
+    if ts_fk:
+        key = 'template_size:' + str(ts_fk)
+        cached = _cache.retrieve(key)
+        if cached:
+            item['size'] = cached
+        else:
+            item['size'] = get_template_size(ts_fk, vendor_id)
+            _cache.store('template_size:' + str(ts_fk), item['size'])
+
+        item['simple'] = False
+    else:
+        if 'price' not in item:
+            item['price'] = 0
+            item['error'] = "Price not found"
+        item['simple'] = True
+    if tc_fk:
+        key = 'template_customize:' + str(tc_fk)
+        cached = _cache.retrieve(key)
+        if cached:
+            item['custom'] = cached
+        else:
+            item['custom'] = get_template_customize(tc_fk, vendor_id)
+            _cache.store(key, item['custom'])
 
 
 def process_customization(cust_obj, vendor_id):

@@ -1,4 +1,4 @@
-from .data.menu import get_version, get_menu as data_menu
+from .data.menu import get_version, get_full_menu as data_menu
 from . import basic_failure, basic_success
 
 def get_menu(request):

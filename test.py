@@ -1,4 +1,4 @@
-from .data.menu import process_customization, get_template_customize, get_template_size, get_menu
+from .data.menu import process_customization, get_template_customize, get_template_size, get_full_menu
 import pprint
 
 printer = pprint.PrettyPrinter(indent=2)
@@ -14,5 +14,5 @@ def test2():
     printer.pprint(template)
 
 def test3():
-    vendor = get_menu(1)
+    vendor = get_full_menu(1)
     printer.pprint(vendor)
