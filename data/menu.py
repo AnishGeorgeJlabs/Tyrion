@@ -7,6 +7,9 @@ from .cache import Cache
 _cache = Cache('menu')
 
 
+def clear_menu_cache():
+    _cache.clear()
+
 def get_version(vendor_id):
     """ Checking menu version """
     vendor = db.menu.find_one({"vendor_id": vendor_id}, {"version": True, "_id": False})
@@ -22,8 +25,7 @@ def get_full_menu(vendor_id):
     1. Either the price or a size object will be present. in case of size object, it can be an embedded object
         or it may be a template reference
     2. The customization is optional, but if there, it will either be an object or a template reference """
-    _cache.clear()
-
+    clear_menu_cache()
     vendor = db.menu.find_one({"vendor_id": vendor_id}, {"_id": False})
     if 'menu' not in vendor:
         return None
