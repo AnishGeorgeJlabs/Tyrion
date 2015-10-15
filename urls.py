@@ -26,7 +26,9 @@ def test(request):
 urlpatterns = [
     url(r'^$', test),
     url(r'^menu$', api.get_menu),
-    url(r'^menu/check_version$', api.check_menu_version)
+    url(r'^menu/check_version$', api.check_menu_version),
+
+    url(r'order', api.place_order)
 ]
 
 

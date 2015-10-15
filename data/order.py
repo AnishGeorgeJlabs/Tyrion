@@ -125,12 +125,14 @@ def accept_order(order_post):
         "phone": order_post['phone'],
         "email": order_post['email'],
         "order": pretty,
-        "total": total
+        "total": total,
+        "status": "placed"
     }
     place_order(formal_order, vendor_id)
 
     order_post.update({"pretty_order": pretty, "grand_total": total, "timestamp": datetime.now()})
     db.order_data.insert_one(order_post)
+    return formal_order
 
 # -------------------------------------------------------------------------------------------------------------------- #
 sample_order_post = {

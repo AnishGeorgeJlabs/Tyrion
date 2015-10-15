@@ -1,5 +1,9 @@
+from django.views.decorators.csrf import csrf_exempt
+
 from .data.menu import get_version, get_full_menu as data_menu
-from . import basic_failure, basic_success
+from . import basic_failure, basic_success, basic_error, get_json
+from .data.order import accept_order
+
 
 def get_menu(request):
     """
@@ -35,3 +39,17 @@ def check_menu_version(request):
         return basic_success(version == db_version)
 
 
+@csrf_exempt
+def place_order(request):
+    try:
+        order_post = get_json(request)
+
+        for key in ['vendor_id', 'name', 'email', 'phone']:
+            if key not in order_post or str(order_post[key]) == '':
+                return basic_failure("Invalid "+key)
+
+        res = accept_order(order_post)
+        return basic_success(res)
+
+    except Exception as e:
+        return basic_error(e)
