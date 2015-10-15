@@ -18,12 +18,12 @@ def create_cat_group(order):
     return cat_group
 
 
-def get_partial_menu(vendor_id, cat_group):
+def get_partial_menu(cat_group, vendor_id):
     """
     Instead of retrieving the full menu, we retrieve a partial menu containing all the items we
     need based on the order's category group
-    :param vendor_id:
     :param cat_group: the category group built with create_cat_group()
+    :param vendor_id:
     :return:
     """
     clear_menu_cache()
@@ -42,29 +42,33 @@ def get_partial_menu(vendor_id, cat_group):
     return vendor['menu']
 
 
-def accept_order(order_post):
+def accept_order(order, vendor_id):
     """
     vendor_id checking to be done higher up
-    :param order_post:
-    :return:
+    :param order: The order list
+    :param vendor_id: usual
+    :returns: (The pretty printed order list, grand total (as of now taxless))
     """
-    menu = get_partial_menu(order_post['vendor_id'], create_cat_group(order_post['order']))
+    menu = get_partial_menu(create_cat_group(order), vendor_id)
     price = 0
-    order = order_post['order']
-    pretty_order = order_post['pretty'] = []
+    pretty_order = []
 
     for record in order:
         menu_item = menu[record['category']]["items"][record['item']]
         p = {'name': menu_item['name']}
         subtotal = 0
 
+        # Getting the base price of the item
         if 'size' in record:
             sz = menu_item['size'][record['size']]
             p['size'] = sz['name']
             subtotal += sz['price']
+            p['base_price'] = sz['price']
         else:
             subtotal += menu_item['price']
+            p['base_price'] = menu_item['price']
 
+        # Handling customization
         if 'custom' in record:
             p['custom'] = []
             for i, cat in enumerate(record['custom']):
@@ -72,59 +76,93 @@ def accept_order(order_post):
                 res = []
                 if customization['max'] > 0:
                     cat = cat[:customization['max']]
-                for j in cat:
-                    res.append(customization['options'][j]['name'])
 
+                # for handling soft limits
                 s_lim = customization['soft']
-                if len(cat) > s_lim > 0:
-                    for j in cat[s_lim:]:
-                        subtotal += customization['options'][j]['price']
+
+                for j, opt in enumerate(cat):
+                    obj = {"name": customization['options'][opt]['name']}
+                    if s_lim > 0 and j < s_lim:
+                        obj['price'] = 0
+                    else:
+                        obj['price'] = customization['options'][opt]['price']
+                        subtotal += obj['price']
+                    res.append(obj)
 
                 if len(res) > 0:
                     p['custom'].append({
                         "name": customization.get("name", "untitled"),
                         "selection": res
                     })
+            p['price_after_customization'] = subtotal
+
+        # Now multiply price with quantity
         qty = record.get('qty', record.get('quantity', 1))
         p['quantity'] = qty
-        p['price'] = subtotal
         subtotal *= qty
         p['sub_total'] = subtotal
-        pretty_order.append(p)
-        price += subtotal
 
-    order_post['grand_total'] = price
-    return order_post
+        pretty_order.append(p)  # add the item to the final order list
+
+        price += subtotal  # add up the current item's price to the grand total
+        # End of for loop
+
+    return pretty_order, price
 
 
 sample_order_post = {
     "email": "anish.george@jlabs.co",
+    "name": "Anish George",
     "phone": "9711154215",
     "vendor_id": 1,
     "order": [
         {
-            "category": 2,
+            "category": 0,
             "item": 0,
             "size": 2,
             "custom": [
-                [1, 2], [5], []
-            ],
-            "qty": 2
-        },
-        {
-            "category": 3,
-            "item": 2,
-            "qty": 3
-        },
-        {
-            "category": 4,
-            "item": 4,
-            "qty": 1
+                [1],  # Crust
+                [2],  # Sauce
+                [1, 3, 15],  # Signature toppings
+                [5, 8],  # Gourmet toppings
+                []
+            ]
         }
     ]
 }
+'''
+"order": [
+    {
+        "category": 2,
+        "item": 0,
+        "size": 2,
+        "custom": [
+            [1, 2], [5], []
+        ],
+        "qty": 2
+    },
+    {
+        "category": 3,
+        "item": 2,
+        "qty": 3
+    },
+    {
+        "category": 4,
+        "item": 4,
+        "qty": 1
+    }
+]
+'''
+
 
 def testSample():
     from pprint import PrettyPrinter
+
     printer = PrettyPrinter(indent=2)
-    printer.pprint(accept_order(sample_order_post))
+    a, b = accept_order(sample_order_post['order'], sample_order_post['vendor_id'])
+    print("Order post")
+    printer.pprint(sample_order_post)
+    print("And the final result")
+    printer.pprint(a)
+
+    print("Grand total : " + str(b))
