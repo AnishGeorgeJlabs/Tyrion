@@ -6,6 +6,16 @@ from .cache import Cache
 
 _cache = Cache('menu')
 
+def index_list(lst):
+    for i, obj in enumerate(lst):
+        obj['id'] = i
+    return lst
+
+def filter_out_disabled(lst):
+    return list(filter(
+        lambda opt: 'disabled' not in opt or opt['disabled'] is False,
+        lst
+    ))
 
 def clear_menu_cache():
     _cache.clear()
@@ -30,14 +40,17 @@ def get_full_menu(vendor_id):
     if 'menu' not in vendor:
         return None
 
-    for category in vendor['menu']:
-        for item in category['items']:
-            process_item(item, vendor_id)
+    for i, category in enumerate(vendor['menu']):
+        for j, item in enumerate(category['items']):
+            process_item(item, vendor_id, j)
+        category['id'] = i
+        category['items'] = filter_out_disabled(category['items'])
+    vendor['menu'] = filter_out_disabled(vendor['menu'])
 
     return vendor
 
 
-def process_item(item, vendor_id):
+def process_item(item, vendor_id, id=None):
     """ Process individual item, works on side effects
     :param item:
     :param vendor_id:
@@ -45,13 +58,18 @@ def process_item(item, vendor_id):
     """
     ts_fk = item.pop('template_size_fk', None)
     tc_fk = item.pop('template_customize_fk', None)
+
+    if id is not None:
+        item['id'] = id
+
+    # Setting up the size
     if ts_fk:
         key = 'template_size:' + str(ts_fk)
         cached = _cache.retrieve(key)
         if cached:
             item['size'] = cached
         else:
-            item['size'] = get_template_size(ts_fk, vendor_id)
+            item['size'] = get_template_size(ts_fk, vendor_id, index_options=(id is not None))
             _cache.store('template_size:' + str(ts_fk), item['size'])
 
         item['simple'] = False
@@ -60,17 +78,19 @@ def process_item(item, vendor_id):
             item['price'] = 0
             item['error'] = "Price not found"
         item['simple'] = True
+
+    # Setting up customization categories
     if tc_fk:
         key = 'template_customize:' + str(tc_fk)
         cached = _cache.retrieve(key)
         if cached:
             item['custom'] = cached
         else:
-            item['custom'] = get_template_customize(tc_fk, vendor_id)
+            item['custom'] = get_template_customize(tc_fk, vendor_id, index_options=(id is not None))
             _cache.store(key, item['custom'])
 
 
-def process_customization(cust_obj, vendor_id):
+def process_customization(cust_obj, vendor_id, index_options=False):
     """ Lowest building block, process a given customization adding additional data from template
     :param cust_obj: The object having the customization reference inside the customization template
     :param vendor_id: as usual
@@ -102,12 +122,17 @@ def process_customization(cust_obj, vendor_id):
             if key not in customization:
                 customization[key] = 0
 
+        # index the options for app
+        if index_options:
+            index_list(customization['options'])
+            customization['options'] = filter_out_disabled(customization['options'])
+
         return customization
     else:
         return None
 
 
-def get_template_customize(template_fk, vendor_id):
+def get_template_customize(template_fk, vendor_id, index_options=False):
     """ Process the customization template, uses process_customization()
     Parses the template, adds any missing customizations
     :param template_fk: The foreign key for the template id in db.template_customize
@@ -129,11 +154,11 @@ def get_template_customize(template_fk, vendor_id):
         for section in custom:
             process_customization(section, vendor_id)
         '''
-        custom = [process_customization(section, vendor_id) for section in template['custom']]
+        custom = [process_customization(section, vendor_id, index_options) for section in template['custom']]
         return custom
 
 
-def get_template_size(template_fk, vendor_id):
+def get_template_size(template_fk, vendor_id, index_options=False):
     """ Get the Size templates
     :param template_fk: Foreign key for size template in db.template_size
     :param vendor_id: as usual
@@ -145,4 +170,8 @@ def get_template_size(template_fk, vendor_id):
     )
     if not template:
         return None
-    return template.get('size')
+    sz = template.get('size', [])
+    if index_options:
+        return filter_out_disabled(index_list(sz))
+    else:
+        return sz
