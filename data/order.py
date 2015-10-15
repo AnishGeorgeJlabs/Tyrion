@@ -1,5 +1,7 @@
 from .menu import process_item, clear_menu_cache
 from . import db
+from datetime import datetime
+from .external_integration import place_order
 
 
 def create_cat_group(order):
@@ -42,7 +44,7 @@ def get_partial_menu(cat_group, vendor_id):
     return vendor['menu']
 
 
-def accept_order(order, vendor_id):
+def process_order(order, vendor_id):
     """
     vendor_id checking to be done higher up
     :param order: The order list
@@ -110,6 +112,27 @@ def accept_order(order, vendor_id):
     return pretty_order, price
 
 
+def accept_order(order_post):
+    vendor_id = order_post['vendor_id']
+    order = order_post['order']
+
+    pretty, total = process_order(order, vendor_id)
+
+    # TODO, this seems a good place to do tax additions and so forth
+
+    formal_order = {
+        "name": order_post['name'],
+        "phone": order_post['phone'],
+        "email": order_post['email'],
+        "order": pretty,
+        "total": total
+    }
+    place_order(formal_order, vendor_id)
+
+    order_post.update({"pretty_order": pretty, "grand_total": total, "timestamp": datetime.now()})
+    db.order_data.insert_one(order_post)
+
+# -------------------------------------------------------------------------------------------------------------------- #
 sample_order_post = {
     "email": "anish.george@jlabs.co",
     "name": "Anish George",
@@ -159,7 +182,7 @@ def testSample():
     from pprint import PrettyPrinter
 
     printer = PrettyPrinter(indent=2)
-    a, b = accept_order(sample_order_post['order'], sample_order_post['vendor_id'])
+    a, b = process_order(sample_order_post['order'], sample_order_post['vendor_id'])
     print("Order post")
     printer.pprint(sample_order_post)
     print("And the final result")
