@@ -31,7 +31,7 @@ def auth(handler):
     """
     def authorized_access(request):
         if request.method == "GET":
-            opts = request.GET
+            opts = request.GET.copy()
         else:
             opts = get_json(request)
 
@@ -39,8 +39,8 @@ def auth(handler):
             if key not in opts:
                 return basic_error(key+" missing, unauthorized access")
 
-        api_key = opts.pop('api_key')
-        vendor_id = int(opts.pop('vendor_id'))
+        api_key = opts.get('api_key')
+        vendor_id = int(opts.get('vendor_id'))
         try:
             if db.credentials.count({"_id": ObjectId(api_key), "vendor_id": vendor_id}) > 0:
                 return handler(opts, vendor_id)
