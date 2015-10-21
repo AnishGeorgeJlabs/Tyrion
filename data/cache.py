@@ -17,12 +17,18 @@ class Cache(object):
             return None
         res = self.cache.get(key)
         if res is not None:
-            return res.copy()
+            try:
+                return res.copy()
+            except:
+                return res
         else:
             return res
 
     def store(self, key, value):
-        self.cache[key] = value.copy()
+        try:
+            self.cache[key] = value.copy()
+        except:
+            self.cache[key] = value
 
     def clear(self):
         _MASTER_CACHE[self.namespace] = {}

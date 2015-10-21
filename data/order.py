@@ -2,6 +2,7 @@ from .menu import process_item, clear_menu_cache
 from . import db
 from datetime import datetime
 from .external_integration import place_order
+from .order_utils import generate_order_number, get_delivery_charges
 
 
 def create_cat_group(order):
@@ -52,7 +53,8 @@ def process_order(order, vendor_id):
     :returns: (The pretty printed order list, grand total (as of now taxless))
     """
     menu = get_partial_menu(create_cat_group(order), vendor_id)
-    price = 0
+    total = 0
+    untaxable = 0
     pretty_order = []
 
     for record in order:
@@ -106,88 +108,40 @@ def process_order(order, vendor_id):
 
         pretty_order.append(p)  # add the item to the final order list
 
-        price += subtotal  # add up the current item's price to the grand total
+        if menu_item.get('taxable', False):
+            untaxable += subtotal
+        else:
+            total += subtotal  # add up the current item's price to the grand total
         # End of for loop
 
-    return pretty_order, price
+    return pretty_order, total, untaxable
 
 
 def accept_order(order_post):
     vendor_id = order_post['vendor_id']
     order = order_post['order']
 
-    pretty, total = process_order(order, vendor_id)
+    pretty, total, untaxable = process_order(order, vendor_id)
 
-    # TODO, this seems a good place to do tax additions and so forth
+    tax_total = total * 1.125
+    del_charges = get_delivery_charges(order_post['area'], vendor_id)
+    gtotal = untaxable + tax_total + del_charges
 
-    formal_order = {
-        "name": order_post['name'],
-        "phone": order_post['phone'],
-        "email": order_post['email'],
-        "order": pretty,
-        "total": total,
-        "status": "placed"
-    }
-    place_order(formal_order, vendor_id)
-
-    order_post.update({"pretty_order": pretty, "grand_total": total, "timestamp": datetime.now()})
-    db.order_data.insert_one(order_post)
-    return formal_order
-
-# -------------------------------------------------------------------------------------------------------------------- #
-sample_order_post = {
-    "email": "anish.george@jlabs.co",
-    "name": "Anish George",
-    "phone": "9711154215",
-    "vendor_id": 1,
-    "order": [
-        {
-            "category": 0,
-            "item": 0,
-            "size": 2,
-            "custom": [
-                [1],  # Crust
-                [2],  # Sauce
-                [1, 3, 15],  # Signature toppings
-                [5, 8],  # Gourmet toppings
-                []
-            ]
-        }
-    ]
-}
-'''
-"order": [
-    {
-        "category": 2,
-        "item": 0,
-        "size": 2,
-        "custom": [
-            [1, 2], [5], []
-        ],
-        "qty": 2
-    },
-    {
-        "category": 3,
-        "item": 2,
-        "qty": 3
-    },
-    {
-        "category": 4,
-        "item": 4,
-        "qty": 1
-    }
-]
-'''
-
-
-def testSample():
-    from pprint import PrettyPrinter
-
-    printer = PrettyPrinter(indent=2)
-    a, b = process_order(sample_order_post['order'], sample_order_post['vendor_id'])
-    print("Order post")
-    printer.pprint(sample_order_post)
-    print("And the final result")
-    printer.pprint(a)
-
-    print("Grand total : " + str(b))
+    order_num, timestamp = generate_order_number(vendor_id)
+    order_post.update({
+        "pretty_order": pretty,
+        "amount": {
+            "net_taxable": total,
+            "net_untaxable": untaxable,
+            "net_after_tax": tax_total,
+            "delivery_charges": del_charges,
+            "net_amount_payable": gtotal
+        },
+        "order_number": order_num,
+        "timestamp": timestamp,
+        "status": [
+            {"status": "placed", "time": timestamp}
+        ]
+    })
+    db.orders.insert_one(order_post)
+    return gtotal

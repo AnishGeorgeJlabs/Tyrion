@@ -44,7 +44,7 @@ def place_order(request):
     try:
         order_post = get_json(request)
 
-        for key in ['vendor_id', 'name', 'email', 'phone']:
+        for key in ['vendor_id', 'name', 'email', 'phone', 'area']:
             if key not in order_post or str(order_post[key]) == '':
                 return basic_failure("Invalid "+key)
 
