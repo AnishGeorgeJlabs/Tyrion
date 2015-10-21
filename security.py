@@ -23,12 +23,12 @@ def login(request):
     else:
         return basic_failure("Unauthorized access")
 
-@csrf_exempt
 def auth(handler):
     """ Authorization layer for merchant application
     :param handler: A function which will take 2 parameters (options, vendor_id) and return JSON response
     :return: the handler function wrapped with the authorization middleware
     """
+    @csrf_exempt
     def authorized_access(request):
         if request.method == "GET":
             opts = request.GET.copy()
@@ -43,7 +43,7 @@ def auth(handler):
         vendor_id = int(opts.get('vendor_id'))
         try:
             if db.credentials.count({"_id": ObjectId(api_key), "vendor_id": vendor_id}) > 0:
-                return handler(opts, vendor_id)
+                return handler(opts, vendor_id, request.method)
             else:
                 return basic_failure("Unauthorized access")
         except Exception as e:
