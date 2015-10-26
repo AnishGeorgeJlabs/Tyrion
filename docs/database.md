@@ -26,6 +26,7 @@ The following is the complete final design of the menu as retrieved by the API
 ```JSON
 {
   "category": "Name of the category",
+  "id": <int, index of category (used for order placement)>,
   "desc": "Optional description for category",
   "items": [ <a list of items> ]
 }
@@ -35,6 +36,7 @@ The following is the complete final design of the menu as retrieved by the API
 ```JSON
 {
   "name": "Name of item",
+  "id": <int, index>,
   "desc": "Description",
   "simple": <Boolean indicating whether there is a price field or 
             does it have multiple prices for various sizes>,
@@ -58,7 +60,16 @@ The size component being ```{ "name": "size name", "price": <integer> }```
   "soft": <int, soft limit on selection, after this limit, price is charged, default 0>
 }
 ```
-The customization option being ```{"name": "option name", "price": <integer, additional charge over base price>, "tags": <a list of tags>}```
+#### ---- Customization Option 
+```JSON
+{
+  "name": "option name", 
+  "id": <int, index>,
+  "price": <integer, additional charge over base price>, 
+  "desc": "Optional description, rare chances",
+  "tags": <a list of tags>
+}
+```
 
 ## Database Design
 ### The `menu` collection
