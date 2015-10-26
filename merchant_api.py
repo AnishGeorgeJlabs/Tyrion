@@ -4,9 +4,18 @@ from . import db, basic_success, basic_failure
 
 
 def get_order_list(opts, vendor_id, method):
-    status = opts.get('status', 'placed')
+    tab_section = opts.get('status', 'new')
+    if tab_section == "new":
+        status = ['placed']
+    elif tab_section == "current":
+        status = ['accepted', 'delayed', 'ready']
+    elif tab_section == "past":
+        status = ['cancelled', 'delivered']
+    else:
+        return basic_failure("Invalid status")
+
     res = list(db.orders.aggregate([
-        {"$match": {"vendor_id": vendor_id, "status.0.status": status}},
+        {"$match": {"vendor_id": vendor_id, "status.0.status": {"$in": status}}},
         {"$unwind": "$status"},
         {"$match": {"status.status": status}},
         {"$project": {
