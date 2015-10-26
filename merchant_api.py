@@ -4,7 +4,7 @@ from . import db, basic_success, basic_failure
 
 
 def get_order_list(opts, vendor_id, method):
-    tab_section = opts.get('status', 'new')
+    tab_section = opts.get('tab', 'new').lower()
     if tab_section == "new":
         status = ['placed']
     elif tab_section == "current":
@@ -17,7 +17,7 @@ def get_order_list(opts, vendor_id, method):
     res = list(db.orders.aggregate([
         {"$match": {"vendor_id": vendor_id, "status.0.status": {"$in": status}}},
         {"$unwind": "$status"},
-        {"$match": {"status.status": status}},
+        {"$match": {"status.status": {"$in": status}}},
         {"$project": {
             "order_number": 1,
             "status": "$status.status",
