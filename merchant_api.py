@@ -37,6 +37,16 @@ def get_complete_order(opts, vendor_id, method):
     else:
         order['status'] = order['status'][0]['status']
         order['timestamp'] = order['timestamp']
+        # Sanitization of order list for ease of use
+        for item in order['pretty_order']:
+            if 'custom' in item:
+                custom = item.pop('custom')
+                new_cust = []
+                for option in custom:
+                    for sel in option['selection']:
+                        sel['name'] += " ("+option['name']+")"
+                        new_cust.append(sel)
+                item['custom'] = new_cust
         return basic_success(order)
 
 

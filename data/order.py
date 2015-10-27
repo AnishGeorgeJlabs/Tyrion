@@ -134,6 +134,7 @@ def accept_order(order_post):
             "net_taxable": total,
             "net_untaxable": untaxable,
             "net_after_tax": tax_total,
+            "tax": tax_total - total,
             "delivery_charges": del_charges,
             "net_amount_payable": gtotal
         },
