@@ -16,8 +16,6 @@ def get_order_list(opts, vendor_id, method):
 
     res = list(db.orders.aggregate([
         {"$match": {"vendor_id": vendor_id, "status.0.status": {"$in": status}}},
-        {"$unwind": "$status"},
-        {"$match": {"status.status": {"$in": status}}},
         {"$project": {
             "order_number": 1,
             "status": "$status.status",
@@ -26,6 +24,8 @@ def get_order_list(opts, vendor_id, method):
             "_id": 0
         }},
     ]))
+    for order in res:
+        order['status'] = order['status'][0]
     return basic_success(res)
 
 
