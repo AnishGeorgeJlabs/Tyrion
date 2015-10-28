@@ -3,6 +3,8 @@
   "email": "email address",
   "phone": "phone, number",
   "name": "Anish George",
+  "address": "Address full",
+  "area": "Short area name",
   "order": [
     {
       "category": "index",

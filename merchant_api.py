@@ -16,6 +16,7 @@ def get_order_list(opts, vendor_id, method):
 
     res = list(db.orders.aggregate([
         {"$match": {"vendor_id": vendor_id, "status.0.status": {"$in": status}}},
+        {"$sort": { "timestamp": -1 }},
         {"$project": {
             "order_number": 1,
             "status": "$status.status",
