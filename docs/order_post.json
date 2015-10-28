@@ -10,8 +10,11 @@
       "qty": "Quantity, defaults to 1",
       "size": "index, optional",
       "custom": [
-        ["array of indices"], ["indices of the next category"]
+        [], [1,5,6], []
       ]
+    },
+    {
+      "category": 1
     }
   ]
 }

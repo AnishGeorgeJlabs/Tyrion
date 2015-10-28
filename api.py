@@ -36,7 +36,7 @@ def check_menu_version(request):
     if not db_version:
         return basic_failure("Invalid vendor or bad data")
     else:
-        return basic_success(version == db_version)
+        return basic_success(int(version) == db_version)
 
 
 @csrf_exempt
