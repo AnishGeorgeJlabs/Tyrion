@@ -22,6 +22,7 @@ def get_order_list(opts, vendor_id, method):
             "status": "$status.status",
             "area": 1,
             "total": "$amount.net_amount_payable",
+            "timestamp": 1,
             "_id": 0
         }},
     ]))
