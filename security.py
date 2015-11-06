@@ -23,6 +23,20 @@ def login(request):
     else:
         return basic_failure("Unauthorized access")
 
+@csrf_exempt
+def change_password(request):
+    opts = get_json(request)
+    for key in ['api_key', 'vendor_id', 'old_pass', 'new_pass', 'username']:
+        if key not in opts:
+            return basic_error(key+" missing, unauthorized access")
+    update = db.credentials.update_one({
+        "_id": ObjectId(opts['api_key']),
+        "username": opts['username'],
+        "password": opts['old_pass'],
+        "vendor_id": opts['vendor_id']
+    }, {"$set": {"password": opts['new_pass']}})
+    return basic_success(update.modified_count == 1)
+
 def auth(handler):
     """ Authorization layer for merchant application
     :param handler: A function which will take 2 parameters (options, vendor_id) and return JSON response
@@ -47,6 +61,6 @@ def auth(handler):
             else:
                 return basic_failure("Unauthorized access")
         except Exception as e:
-            return basic_error("Authorization error: "+str(e))
+            return basic_error("Handler error: "+str(e))
 
     return authorized_access

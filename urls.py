@@ -33,6 +33,8 @@ urlpatterns = [
 
     # ---------- Merchant app urls -------- #
     url(r'^login$', security.login),
+    url(r'^change_pass$', security.change_password),
+
     url(r'^order_list$', security.auth(merchant_api.get_order_list)),
     url(r'^order_data$', security.auth(merchant_api.get_complete_order)),
     url(r'^order_data/update_status$', security.auth(merchant_api.update_status))
