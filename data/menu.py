@@ -71,13 +71,10 @@ def process_item(item, vendor_id, id=None):
         else:
             item['size'] = get_template_size(ts_fk, vendor_id, index_options=(id is not None))
             _cache.store('template_size:' + str(ts_fk), item['size'])
-
-        item['simple'] = False
     else:
         if 'price' not in item:
             item['price'] = 0
             item['error'] = "Price not found"
-        item['simple'] = True
 
     # Setting up customization categories
     if tc_fk:
@@ -88,6 +85,9 @@ def process_item(item, vendor_id, id=None):
         else:
             item['custom'] = get_template_customize(tc_fk, vendor_id, index_options=(id is not None))
             _cache.store(key, item['custom'])
+        item['simple'] = False
+    else:
+        item['simple'] = True
 
 
 def process_customization(cust_obj, vendor_id, index_options=False):

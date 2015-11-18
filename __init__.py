@@ -38,3 +38,12 @@ def base_response(success=False, data=None, ekey="reason", reason=None):
     return jsonResponse(res)
 
 # -------------------------------------------------------------- #
+import json
+import os
+
+filepath = os.path.join(
+    os.dirname(os.abspath(__file__)),
+    "db_creds.json"
+)
+with open(filepath, 'r') as jfile:
+    testdata = json.load(jfile)
