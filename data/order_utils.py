@@ -6,6 +6,7 @@ from datetime import datetime, date, time
 
 prefix_cache = Cache('vendor_prefix')
 delivery_cache = Cache('delivery_charges')
+vendor_cache = Cache('vendor_names')
 
 
 def get_vendor_prefix(vendor_id):
@@ -51,3 +52,15 @@ def get_delivery_charges(area, vendor_id):
             res = d['charges'][0].get('charge', 0)
             delivery_cache.store(key, res)
             return res
+
+def get_vendor(vendor_id):
+    vendor = vendor_cache.retrieve(str(vendor_id))
+    if not vendor:
+        merchant = db.merchants.find_one({"vendors.vendor_id": vendor_id}, {"vendors.$": True, "name": True})
+        vendor = {
+            "name": merchant['name'],
+            "address": merchant['vendors'][0]['address']
+        }
+        vendor_cache.store(str(vendor_id), vendor)
+    return vendor
+
