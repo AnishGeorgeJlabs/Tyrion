@@ -60,13 +60,13 @@ def place_order(request):
 def history(request):
     try:
         email = request.GET["email"]
+        vendor_id = int(request.GET['vendor_id'])
         orders = list(db.orders.aggregate([
-            {"$match": {"email": email}},
+            {"$match": {"email": email, "vendor_id": vendor_id}},
             {"$sort": { "timestamp": -1 }},
             {"$project": {
                 "order_number": 1,
                 "status": "$status.status",
-                "vendor_id": 1,
                 "delivery_charge": "$amount.delivery_charges",
                 "tax": "$amount.tax",
                 "total": "$amount.net_amount_payable",
@@ -87,9 +87,6 @@ def history(request):
                         for sel in option['selection']:
                             new_cust.append(sel['name'])
                     item['custom'] = new_cust
-
-            vid = order.pop('vendor_id')
-            order['vendor'] = get_vendor(vid)
         return basic_success(orders)
     except Exception as e:
         return basic_error(e)
