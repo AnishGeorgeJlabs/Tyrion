@@ -3,6 +3,7 @@ from django.views.decorators.csrf import csrf_exempt
 from .data.menu import get_version, get_full_menu as data_menu
 from . import basic_failure, basic_success, basic_error, get_json
 from .data.order import accept_order
+from . import db
 
 
 def get_menu(request):
@@ -51,5 +52,42 @@ def place_order(request):
         res = accept_order(order_post)
         return basic_success(res)
 
+    except Exception as e:
+        return basic_error(e)
+
+
+def history(request):
+    try:
+        email = request.GET["email"]
+        orders = list(db.orders.aggregate([
+            {"$match": {"email": email}},
+            {"$sort": { "timestamp": -1 }},
+            {"$project": {
+                "order_number": 1,
+                "status": "$status.status",
+                "vendor_id": 1,
+                "delivery_charges": "$amount.delivery_charges",
+                "tax": "$amount.tax",
+                "total": "$amount.total",
+                "order": "$pretty_order"
+            }}
+        ]))
+
+        for order in orders:
+            # Correct status
+            order['status'] = order['status'][0]
+
+            # correct the orders
+            for item in order['order']:
+                if 'custom' in item:
+                    custom = item.pop('custom')
+                    new_cust = []
+                    for option in custom:
+                        for sel in option['selection']:
+                            new_cust.append(sel['name'])
+                    item['custom'] = new_cust
+
+            # get the vendor
+        return basic_success(orders)
     except Exception as e:
         return basic_error(e)
