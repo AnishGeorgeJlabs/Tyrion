@@ -31,6 +31,7 @@ urlpatterns = [
     url(r'^menu/check_version$', api.check_menu_version),
     url(r'order$', api.place_order),
     url(r'history$', api.history),
+    url(r'feedback$', api.feedback),
 
     # ---------- Merchant app urls -------- #
     url(r'^login$', security.login),

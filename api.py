@@ -93,3 +93,17 @@ def history(request):
         return basic_success(orders)
     except Exception as e:
         return basic_error(e)
+
+@csrf_exempt
+def feedback(request):
+    try:
+        data = get_json(request)
+        email = data['email']
+        phone = data['phone']
+        vendor_id = data['vendor_id']
+        subject = data.get('subject', 'Feedback')
+        body = data['body']
+        # Todo, do something with this data
+        return basic_success(True)
+    except Exception as e:
+        return basic_error(e)
