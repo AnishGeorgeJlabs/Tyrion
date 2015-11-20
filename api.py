@@ -4,6 +4,7 @@ from .data.menu import get_version, get_full_menu as data_menu
 from . import basic_failure, basic_success, basic_error, get_json
 from .data.order import accept_order
 from . import db
+from .data.order_utils import get_vendor
 
 
 def get_menu(request):
@@ -66,9 +67,9 @@ def history(request):
                 "order_number": 1,
                 "status": "$status.status",
                 "vendor_id": 1,
-                "delivery_charges": "$amount.delivery_charges",
+                "delivery_charge": "$amount.delivery_charges",
                 "tax": "$amount.tax",
-                "total": "$amount.total",
+                "total": "$amount.net_amount_payable",
                 "order": "$pretty_order"
             }}
         ]))
@@ -87,7 +88,8 @@ def history(request):
                             new_cust.append(sel['name'])
                     item['custom'] = new_cust
 
-            # get the vendor
+            vid = order.pop('vendor_id')
+            order['vendor'] = get_vendor(vid)
         return basic_success(orders)
     except Exception as e:
         return basic_error(e)

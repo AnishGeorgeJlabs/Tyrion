@@ -30,6 +30,7 @@ urlpatterns = [
     url(r'^menu$', api.get_menu),
     url(r'^menu/check_version$', api.check_menu_version),
     url(r'order$', api.place_order),
+    url(r'history$', api.history),
 
     # ---------- Merchant app urls -------- #
     url(r'^login$', security.login),
