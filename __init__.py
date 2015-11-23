@@ -17,7 +17,7 @@ with open(file, 'r') as cfile:
     creds = json.load(cfile)['tyrion']
 
 dbclient = pymongo.MongoClient("45.55.232.5:27017")
-dbclient.cersei.authenticate(creds['u'], creds['p'], mechanism='MONGODB-CR')
+dbclient.tyrion.authenticate(creds['u'], creds['p'], mechanism='MONGODB-CR')
 
 db = dbclient.tyrion
 
