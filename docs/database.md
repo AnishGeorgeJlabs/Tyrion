@@ -38,8 +38,7 @@ The following is the complete final design of the menu as retrieved by the API
   "name": "Name of item",
   "id": <int, index>,
   "desc": "Description",
-  "simple": <Boolean indicating whether there is a price field or 
-            does it have multiple prices for various sizes>,
+  "simple": <Boolean indicating whether there is a customization field or not>,
   "size": <available only when simple is false> [ <a list of size components> ],
   "price": <available only when simple is true> <An integer>,
   "custom": <optional> [ <a list of customization categories> ],
@@ -105,9 +104,9 @@ The second form is the most scalable. Here, the item looks like
 }
 ```
 * The `template_size_fk` is optional, you may have an embedded `size` object as described previously or you may have a 
-`price` key which makes the item a simple item.
+`price`.
 * The `template_customize_fk` is again optional. You may have an embedded `custom` object or you may omit this key so
-that the item may not have any kind of customization available.
+that the item may not have any kind of customization available in which case it becomes a simple item.
 
 ### The `template_size` collection
 This collection stores named templates for size selection of items. Size options are by default interpreted as single selection at app side.

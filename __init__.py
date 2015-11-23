@@ -6,8 +6,18 @@ from django.http import HttpResponse
 from bson.json_util import dumps, loads
 
 # ------- Database Authentication and access ---------------- #
+import json
+import os
+
+file = os.path.join(
+    os.path.dirname(__file__),
+    'db_creds.json'
+)
+with open(file, 'r') as cfile:
+    creds = json.load(cfile)['tyrion']
+
 dbclient = pymongo.MongoClient("45.55.232.5:27017")
-dbclient.tyrion.authenticate("tyrionApi", "halfman", mechanism='MONGODB-CR')
+dbclient.cersei.authenticate(creds['u'], creds['p'], mechanism='MONGODB-CR')
 
 db = dbclient.tyrion
 

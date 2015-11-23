@@ -14,6 +14,16 @@
           "price": 520
         },
         {
+          "name": "Some other simple",
+          "tags": ["sp"],
+          "simple": true,
+          "size": [
+            { "name": "Small", "price": 150 },
+            { "name": "Medium", "price": 200 },
+            { "name": "Large", "price": 250 }
+          ]
+        },
+        {
           "name": "Supreme Non-veg",
           "tags": ["nveg"],
           "simple": false,
