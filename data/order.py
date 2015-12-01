@@ -75,7 +75,10 @@ def process_order(order, vendor_id):
     pretty_order = []
 
     for record in order:
-        menu_item = menu[record['category']]["items"][record['item']]
+        if 'subcat' in record:
+            menu_item = menu[record['category']]["subcats"][record['subcat']]["items"][record['item']]
+        else:
+            menu_item = menu[record['category']]["items"][record['item']]
         p = {'name': menu_item['name']}
         subtotal = 0
 
