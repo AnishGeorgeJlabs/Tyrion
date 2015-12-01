@@ -39,9 +39,12 @@ def get_partial_menu(cat_group, vendor_id):
 
     for i, category in enumerate(vendor['menu']):
         if i in cats:
-            for j, item in enumerate(category['items']):
-                if j in cat_group[i]:
-                    process_item(item, vendor_id)
+            if 'items' in category:
+                for j, item in enumerate(category['items']):
+                    if j in cat_group[i]:
+                        process_item(item, vendor_id)
+            else:
+                pass
     return vendor['menu']
 
 
