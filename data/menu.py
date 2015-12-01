@@ -94,6 +94,7 @@ def process_item(item, vendor_id, id=None):
             _cache.store(key, item['custom'])
 
     item['simple'] = all(key not in item for key in ['custom', 'size'])
+    item['id'] = id
 
 
 def process_customization(cust_obj, vendor_id, index_options=False):
