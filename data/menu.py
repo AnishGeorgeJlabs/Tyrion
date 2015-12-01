@@ -51,7 +51,7 @@ def get_full_menu(vendor_id):
             for k, subcat in enumerate(category['subcats']):
                 for j, item in enumerate(subcat['items']):
                     process_item(item, vendor_id, j)
-                subcat['id'] = j
+                subcat['id'] = k
                 subcat['items'] = filter_out_disabled(subcat['items'])
         category['id'] = i
     vendor['menu'] = filter_out_disabled(vendor['menu'])
