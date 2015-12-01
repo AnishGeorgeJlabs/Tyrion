@@ -64,7 +64,34 @@ sample_orders = [
                 "custom": [[1, 2]]
             }
         ]
-    }]
+    },
+    {
+        "email": "anishgeorgeag@yahoo.in",
+        "name": "Anish 'basso' George",
+        "phone": "9871388191",
+        "address": "153, Freedom fighter enclave",
+        "area": "Green Park",
+        "vendor_id": 2,
+        "order": [
+            {
+                "category": 1,
+                "item": 3,
+                "qty": 2
+            },
+            {
+                "category": 0,
+                "subcat": 0,
+                "item": 2
+            },
+            {
+                "category": 0,
+                "subcat": 1,
+                "item": 10,
+                "qty": 5
+            }
+        ]
+    }
+]
 
 def test_api_orders(idx):
     import requests
