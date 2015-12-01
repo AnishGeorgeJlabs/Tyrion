@@ -41,10 +41,19 @@ def get_full_menu(vendor_id):
         return None
 
     for i, category in enumerate(vendor['menu']):
-        for j, item in enumerate(category['items']):
-            process_item(item, vendor_id, j)
+        if 'items' in category:
+            category['has_subcat'] = False
+            for j, item in enumerate(category['items']):
+                process_item(item, vendor_id, j)
+            category['items'] = filter_out_disabled(category['items'])
+        else:
+            category['has_subcat'] = True
+            for k, subcat in enumerate(category['subcats']):
+                for j, item in enumerate(subcat['items']):
+                    process_item(item, vendor_id, j)
+                subcat['id'] = j
+                subcat['items'] = filter_out_disabled(category['items'])
         category['id'] = i
-        category['items'] = filter_out_disabled(category['items'])
     vendor['menu'] = filter_out_disabled(vendor['menu'])
 
     return vendor
