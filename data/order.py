@@ -14,10 +14,20 @@ def create_cat_group(order):
     cat_group = {}
     for item in order:
         cat = item['category']
-        if cat in cat_group:
-            cat_group[cat].append(item['item'])
+        if 'subcat' not in item:
+            if cat in cat_group:
+                cat_group[cat].append(item['item'])
+            else:
+                cat_group[cat] = [item['item']]
         else:
-            cat_group[cat] = [item['item']]
+            subcat = item['subcat']
+            if cat not in cat_group:
+                cat_group[cat] = {subcat: [item['item']]}
+            elif subcat not in cat_group[cat]:
+                cat_group[cat][subcat] = [item['item']]
+            else:
+                cat_group[cat][subcat].append(item['item'])
+
     return cat_group
 
 
