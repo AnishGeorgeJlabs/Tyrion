@@ -165,4 +165,7 @@ def accept_order(order_post):
         ]
     })
     db.orders.insert_one(order_post)
-    return gtotal
+    return {
+        "price": gtotal,
+        "order_number": order_num
+    }
