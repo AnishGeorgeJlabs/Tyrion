@@ -16,7 +16,7 @@ def get_order_list(opts, vendor_id, method):
 
     res = list(db.orders.aggregate([
         {"$match": {"vendor_id": vendor_id, "status.0.status": {"$in": status}}},
-        {"$sort": { "timestamp": -1 }},
+        {"$sort": {"timestamp": -1}},
         {"$project": {
             "order_number": 1,
             "status": "$status.status",
@@ -46,7 +46,7 @@ def get_complete_order(opts, vendor_id, method):
                 new_cust = []
                 for option in custom:
                     for sel in option['selection']:
-                        sel['name'] += " ("+option['name']+")"
+                        sel['name'] += " (" + option['name'] + ")"
                         new_cust.append(sel)
                 item['custom'] = new_cust
         return basic_success(order)

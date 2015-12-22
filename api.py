@@ -22,6 +22,7 @@ def get_menu(request):
     else:
         return basic_success(vendor_details)
 
+
 def check_menu_version(request):
     """
     Short request to check the menu version. Used by app to check against the server whether it has the latest menu
@@ -48,7 +49,7 @@ def place_order(request):
 
         for key in ['vendor_id', 'name', 'email', 'phone', 'area']:
             if key not in order_post or str(order_post[key]) == '':
-                return basic_failure("Invalid "+key)
+                return basic_failure("Invalid " + key)
 
         res = accept_order(order_post)
         return basic_success(res)
@@ -57,13 +58,20 @@ def place_order(request):
         return basic_error(e)
 
 
+def details(request):
+    pass
+
+
 def history(request):
     try:
         email = request.GET["email"]
         vendor_id = int(request.GET['vendor_id'])
+        status_list = request.GET.get('status', 'placed,accepted,cancelled,ready,delayed,delivered').split(',')
         orders = list(db.orders.aggregate([
-            {"$match": {"email": email, "vendor_id": vendor_id}},
-            {"$sort": { "timestamp": -1 }},
+            {"$match": {"email": email, "vendor_id": vendor_id, "status.0.status": {
+                "$in": status_list
+            }}},
+            {"$sort": {"timestamp": -1}},
             {"$project": {
                 "order_number": 1,
                 "status": "$status.status",
@@ -90,6 +98,7 @@ def history(request):
         return basic_success(orders)
     except Exception as e:
         return basic_error(e)
+
 
 @csrf_exempt
 def feedback(request):
