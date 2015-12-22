@@ -59,7 +59,32 @@ def place_order(request):
 
 
 def details(request):
-    pass
+    vendor_id = int(request.GET['vendor_id'])
+    order_number = request.GET['order_number']
+    order = db.orders.find_one({"vendor_id": vendor_id, "order_number": order_number},
+                               {"_id": 0, "pretty_order": 1, "amount": 1, "status": 1, "order_number": 1})
+    if not order:
+        return basic_failure("Cannot find order")
+    order['status'] = order['status'][0]['status']
+    order['order'] = order.pop('pretty_order')
+    amount = order.pop('amount')
+    amount.pop('net_untaxable')
+    amount.pop('net_after_tax')
+    amount.pop('net_taxable')
+    order.update(amount)
+    return basic_success(order)
+
+
+def process_order(order):
+    # correct the orders
+    for item in order['order']:
+        if 'custom' in item:
+            custom = item.pop('custom')
+            new_cust = []
+            for option in custom:
+                for sel in option['selection']:
+                    new_cust.append(sel['name'])
+            item['custom'] = new_cust
 
 
 def history(request):
@@ -73,6 +98,7 @@ def history(request):
             }}},
             {"$sort": {"timestamp": -1}},
             {"$project": {
+                "_id": 0,
                 "order_number": 1,
                 "status": "$status.status",
                 "delivery_charge": "$amount.delivery_charges",
@@ -85,16 +111,7 @@ def history(request):
         for order in orders:
             # Correct status
             order['status'] = order['status'][0]
-
-            # correct the orders
-            for item in order['order']:
-                if 'custom' in item:
-                    custom = item.pop('custom')
-                    new_cust = []
-                    for option in custom:
-                        for sel in option['selection']:
-                            new_cust.append(sel['name'])
-                    item['custom'] = new_cust
+            process_order(order)
         return basic_success(orders)
     except Exception as e:
         return basic_error(e)
