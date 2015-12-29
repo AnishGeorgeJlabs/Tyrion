@@ -4,7 +4,6 @@ from .data.menu import get_version, get_full_menu as data_menu
 from . import basic_failure, basic_success, basic_error, get_json
 from .data.order import accept_order
 from . import db
-from .data.order_utils import get_vendor
 
 
 def get_menu(request):
@@ -128,5 +127,50 @@ def feedback(request):
         body = data['body']
         # Todo, do something with this data
         return basic_success(True)
+    except Exception as e:
+        return basic_error(e)
+
+
+@csrf_exempt
+def address(request):
+    try:
+        if request.method == "GET":
+            email = request.GET["email"]
+            vendor_id = int(request.GET['vendor_id'])
+            user = db.users.find_one(
+                {"email": email, "vendor_id": vendor_id},
+                {"_id": 0, "addresses": 1}
+            )
+            if not user:
+                return basic_failure("User not found")
+            else:
+                return basic_success(user.get("addresses", []))
+        elif request.method == "POST":
+            data = get_json(request)
+            email = data['email']
+            vendor_id = int(data['vendor_id'])
+            address = data['address']
+            db.users.update_one(
+                {"email": email, "vendor_id": vendor_id},
+                {"$push": {"addresses": address}},
+                upsert=True
+            )
+            return basic_success()
+        else:
+            return basic_error("Unsupported method")
+    except Exception as e:
+        return basic_error(e)
+
+def areas(request):
+    try:
+        if request.method != "GET":
+            return basic_failure("Unsupported method")
+        else:
+            vendor_id = int(request.GET['vendor_id'])
+            areas = list(db.delivery_charges.find(
+                {"charges.vendor_id": vendor_id},
+                {"area": 1, "_id": 0}
+            ))
+            return basic_success([x.get("area") for x in areas])
     except Exception as e:
         return basic_error(e)

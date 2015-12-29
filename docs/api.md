@@ -130,19 +130,42 @@ Call to place the actual order
   ]
 }
 ```
+* Result: An object `{ price: <total price>, order_number: <the generated order number> }`
 
 
 ### 4. History
-Get the previous orders of the user
+Get all the orders of the given user
 
 * GET URL: http://lannister-api.elasticbeanstalk.com/tyrion/history
 * Parameters:
     1. `email`: The email address of the registered user
     2. `vendor_id`: The usual
+    3. `status`: Comma delimited set of status' for the orders in the result list, optional, defaults to any status
 * Result: A list of previous orders, please check url
 
+The status one or more of the following values
 
-### 5. Feedback
+1. placed
+2. accepted
+3. cancelled
+4. delayed
+5. ready
+6. delivered
+
+Historical orders can have status `cancelled` or `delivered` only. All the other status' signify an active order.
+So to get order history, use parameter `status=cancelled,delivered` and to get current order, use parameter
+`status=placed,accepted,delayed,ready`
+
+### 5. Order details
+Get the complete order details of a given order
+
+* GET URL: http://lannister-api.elasticbeanstalk.com/tyrion/details
+* Parameters:
+  1. `vendor_id`: the usual
+  2. `order_number`: The order number for the required order
+* Result: the complete order details, check url
+
+### 6. Feedback
 Post a feedback which will be mailed by the system to the given vendor
 
 * POST URL: http://lannister-api.elasticbeanstalk.com/tyrion/feedback
