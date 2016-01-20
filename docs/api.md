@@ -161,8 +161,8 @@ Get the complete order details of a given order
 
 * GET URL: http://lannister-api.elasticbeanstalk.com/tyrion/details
 * Parameters:
-  1. `vendor_id`: the usual
-  2. `order_number`: The order number for the required order
+    1. `vendor_id`: the usual
+    2. `order_number`: The order number for the required order
 * Result: the complete order details, check url
 
 ### 6. Feedback
@@ -179,3 +179,38 @@ Post a feedback which will be mailed by the system to the given vendor
   "body": "Body of the mail"
 }
 ```
+
+### 7. Address
+Managing user addresses
+
+URL: http://lannister-api.elasticbeanstalk.com/tyrion/address
+
+#### 7.1 GET
+Returns a list of all the addresses of the given user
+
+* Parameters:
+    1. `vendor_id`: the usual
+    2. `email`: email of the user
+* Result: An array of user addresses. Error if user doesn't exist
+
+#### 7.2 POST
+Add a new address for the user
+
+* JSON data:
+```JSON
+{
+  "email": "email address of user",
+  "vendor_id": <int vendor id>,
+  "address": <full address object>
+}
+```
+* Result: Success. If a user does not exists, it is created
+
+
+### 8. Areas
+Get a list of all the areas you vendor delivers to
+
+* URL: http://lannister-api.elasticbeanstalk.com/tyrion/areas
+* Parameters:
+    1. `vendor_id`: the usual
+* Result: An array of areas
