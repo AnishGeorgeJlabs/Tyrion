@@ -174,3 +174,41 @@ def areas(request):
             return basic_success([x.get("area") for x in areas])
     except Exception as e:
         return basic_error(e)
+
+
+@csrf_exempt
+def login(request):
+    try:
+        if request.method != "POST":
+            return basic_failure("Unsupported mothod")
+        else:
+            data = get_json(request)
+            return basic_success(db.users.count({
+                "email": data['email'],
+                "vendor_id": data['vendor_id'],
+                "password": data['password']
+            }) != 0)
+    except Exception as e:
+        return basic_error(e)
+
+@csrf_exempt
+def signup(request):
+    try:
+        if request.method != "POST":
+            return basic_failure("Unsupported mothod")
+        else:
+            data = get_json(request)
+            user = {
+                "email": data['email'],
+                "vendor_id": data['vendor_id'],
+                }
+            if db.users.count(user) != 0:
+                return basic_failure("User already exists")
+            else:
+                user["password"] = data['password']
+                res = db.users.insert_one(user)
+                return basic_success(bool(res.inserted_id))
+    except Exception as e:
+        return basic_error(e)
+    
+
