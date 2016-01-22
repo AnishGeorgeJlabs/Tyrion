@@ -186,5 +186,8 @@ def accept_order(order_post):
     db.orders.insert_one(order_post)
     return {
         "price": gtotal,
-        "order_number": order_num
+        "order_number": order_num,
+        "vat": taxed_amount - original_amount,
+        "service_tax": service_tax,
+        "delivery_charges": del_charges
     }
