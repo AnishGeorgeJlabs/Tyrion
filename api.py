@@ -48,13 +48,13 @@ def place_order(request):
 
         for key in ['vendor_id', 'name', 'email', 'phone', 'area']:
             if key not in order_post or str(order_post[key]) == '':
-                return basic_failure("Invalid " + key)
+                return basic_failure("Invalid " + str(key))
 
         res = accept_order(order_post)
         return basic_success(res)
 
     except Exception as e:
-        return basic_error(e)
+      raise
 
 
 def details(request):

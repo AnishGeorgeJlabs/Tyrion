@@ -43,15 +43,16 @@ def generate_order_number(vendor_id):
 def get_delivery_charges(area, vendor_id):
     key = str(vendor_id) + ":" + area
     charges = delivery_cache.retrieve(key)
-    if not charges:
+    if charges is None:
         d = db.delivery_charges.find_one({"area": area, "charges.vendor_id": vendor_id}, {"charges.$": True})
         if not d:
             delivery_cache.store(key, 0)
-            return 0
+            charges = 0
         else:
             res = d['charges'][0].get('charge', 0)
             delivery_cache.store(key, res)
-            return res
+            charges = res
+    return charges
 
 def get_vendor(vendor_id):
     vendor = vendor_cache.retrieve(str(vendor_id))
