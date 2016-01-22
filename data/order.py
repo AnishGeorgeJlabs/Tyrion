@@ -4,6 +4,7 @@ from datetime import datetime
 from .external_integration import place_order
 from .order_utils import generate_order_number, get_delivery_charges
 
+# Todo, get correct values here
 tax_class = {
     0: 1,
     1: 1.125,
