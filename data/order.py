@@ -4,6 +4,11 @@ from datetime import datetime
 from .external_integration import place_order
 from .order_utils import generate_order_number, get_delivery_charges
 
+tax_class = {
+    0: 1,
+    1: 1.125,
+    2: 1.2
+}
 
 def create_cat_group(order):
     """
@@ -62,6 +67,13 @@ def get_partial_menu(cat_group, vendor_id):
     return vendor['menu']
 
 
+# Here is a useful class which lets us create a dictionary with default value of 
+# any key to be 0
+class TaxDict(dict):
+  def __missing__(self,key):
+    self[key] = 0
+    return self[key]
+
 def process_order(order, vendor_id):
     """
     vendor_id checking to be done higher up
@@ -71,7 +83,7 @@ def process_order(order, vendor_id):
     """
     menu = get_partial_menu(create_cat_group(order), vendor_id)
     total = 0
-    untaxable = 0
+    tax_dict = TaxDict()
     pretty_order = []
 
     for record in order:
@@ -128,33 +140,39 @@ def process_order(order, vendor_id):
 
         pretty_order.append(p)  # add the item to the final order list
 
-        if menu_item.get('taxable', False):
-            untaxable += subtotal
-        else:
-            total += subtotal  # add up the current item's price to the grand total
+        tax_dict[menu_item.get('tax_class', 0)] += subtotal # we are safe as we are using TaxDict
         # End of for loop
 
-    return pretty_order, total, untaxable
+    return pretty_order, tax_dict
 
 
 def accept_order(order_post):
     vendor_id = order_post['vendor_id']
     order = order_post['order']
 
-    pretty, total, untaxable = process_order(order, vendor_id)
+    # we will change the return type of total to be a dictionary of tax types
+    pretty, tax_dict = process_order(order, vendor_id)
 
-    tax_total = total * 1.125
+    # tax_total = total * 1.125
+    taxed_amount = 0
+    original_amount = 0
+    for k,v in tax_dict.items():
+      original_amount += v
+      taxed_amount += v * tax_class.get(k, 1)
+
     del_charges = get_delivery_charges(order_post['area'], vendor_id)
-    gtotal = untaxable + tax_total + del_charges
+    service_tax = taxed_amount * 0.058    # 5.8%
+    gtotal = taxed_amount + del_charges + service_tax
 
     order_num, timestamp = generate_order_number(vendor_id)
     order_post.update({
         "pretty_order": pretty,
         "amount": {
-            "net_taxable": total,
-            "net_untaxable": untaxable,
-            "net_after_tax": tax_total,
-            "tax": tax_total - total,
+            "net_taxable": original_amount - tax_dict[0],
+            "net_untaxable": tax_dict[0],
+            "net_after_tax": taxed_amount,
+            "tax": taxed_amount - original_amount, # this is the vat
+            "service_tax": service_tax,
             "delivery_charges": del_charges,
             "net_amount_payable": gtotal
         },
