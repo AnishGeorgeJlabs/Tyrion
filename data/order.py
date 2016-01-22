@@ -3,6 +3,7 @@ from . import db
 from datetime import datetime
 from .external_integration import place_order
 from .order_utils import generate_order_number, get_delivery_charges
+from .tax import process_tax
 
 # Todo, get correct values here
 tax_class = {
@@ -151,29 +152,25 @@ def accept_order(order_post):
     vendor_id = order_post['vendor_id']
     order = order_post['order']
 
-    # we will change the return type of total to be a dictionary of tax types
     pretty, tax_dict = process_order(order, vendor_id)
 
-    # tax_total = total * 1.125
-    taxed_amount = 0
-    original_amount = 0
-    for k,v in tax_dict.items():
-      original_amount += v
-      taxed_amount += v * tax_class.get(k, 1)
 
     del_charges = get_delivery_charges(order_post['area'], vendor_id)
-    service_tax = taxed_amount * 0.058    # 5.8%
-    gtotal = taxed_amount + del_charges + service_tax
+    # gtotal = taxed_amount + del_charges + service_tax
+
+    tax = process_tax(vendor_id, tax_dict)
+    gtotal = tax['total'] + del_charges
 
     order_num, timestamp = generate_order_number(vendor_id)
     order_post.update({
         "pretty_order": pretty,
         "amount": {
-            "net_taxable": original_amount - tax_dict[0],
+            "net_taxable": tax['base'] - tax_dict[0],
             "net_untaxable": tax_dict[0],
-            "net_after_tax": taxed_amount,
-            "tax": taxed_amount - original_amount, # this is the vat
-            "service_tax": service_tax,
+            "net_after_tax": tax['net_after_tax'],
+            "tax": tax['vat'],
+            "service_tax": tax['service_tax'],
+            "service_charge": tax['service_charge'],
             "delivery_charges": del_charges,
             "net_amount_payable": gtotal
         },
@@ -187,7 +184,8 @@ def accept_order(order_post):
     return {
         "price": gtotal,
         "order_number": order_num,
-        "vat": taxed_amount - original_amount,
-        "service_tax": service_tax,
+        "vat": tax['vat'],
+        "service_tax": tax['service_tax'],
+        "service_charge": tax['service_charge'],
         "delivery_charges": del_charges
     }
