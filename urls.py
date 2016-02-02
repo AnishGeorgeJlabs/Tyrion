@@ -37,6 +37,7 @@ urlpatterns = [
     url(r'areas$', api.areas),
     url(r'user/login$', api.login),
     url(r'user/signup$', api.signup),
+	url(r's_charges$' , api.shipping_charges),
 
     # ---------- Merchant app urls -------- #
     url(r'^vendor/login$', security.login),

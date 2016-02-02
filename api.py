@@ -5,7 +5,25 @@ from . import basic_failure, basic_success, basic_error, get_json
 from .data.order import accept_order
 from . import db
 
-
+def shipping_charges(request):
+	"""
+	Get alll shipping charges respected to their area"""
+	dat={}
+	charges=list()
+	vendor_id = request.GET.get('vendor_id')
+	if not vendor_id:
+		return basic_failure("No vendor id specified")
+	da=db.delivery_charges
+	result_db=da.find({"charges.vendor_id":int(vendor_id)}, {"_id":False , "area":True , "charges.$":True})
+	if result_db:
+		for result in result_db:
+			dat['area']=result['area']
+			dat['charges']=result['charges'][0]['charge']
+			charges.append(dat.copy())
+		return basic_success(charges)
+	else:
+		return basic_failure()
+	
 def get_menu(request):
     """
     Get the Menu for a given vendor
